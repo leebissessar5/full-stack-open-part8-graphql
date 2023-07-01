@@ -1,2 +1,7 @@
-# full-stack-open-part8-graphql
-Submissions for part 8 of Full Stack open
+# [Full Stack Open](https://fullstackopen.com/en/)
+Course hosted by the Department of Computer Science at the University of Helsinki. 
+
+Main repository for Parts 1-7 located [here](https://github.com/leebissessar5/full-stack-open).
+
+## Part 8
+This part of the course is about GraphQL, Facebook's alternative to REST for communication between browser and server.
