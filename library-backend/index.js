@@ -142,14 +142,16 @@ const typeDefs = `
 
 const resolvers = {
   Query: {
-    // allAuthors: () => authors.map(author => ({
-    //     name: author.name,
-    //     bookCount: books.filter(book => book.author === author.name).length,
-    //     born: author.born,
-    //     id: author.id
-    //   }
-    // )),
-    allAuthors: async () => await Author.find({}),
+    allAuthors: async () => {
+      const authors = await Author.find({})
+      const books = await Book.find({}).populate("author");
+      return authors.map(author => ({
+        name: author.name,
+        bookCount: books.filter(book => book.author.name === author.name).length,
+        born: author.born,
+        id: author._id
+      }))
+    },
     allBooks: async (root, args) => {
       let query = {};
 
@@ -160,7 +162,6 @@ const resolvers = {
         }
         query.author = author._id;
       }
-
       if (args.genre) {
         query.genres = { $in: [args.genre] };
       }
