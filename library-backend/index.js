@@ -9,6 +9,8 @@ const MONGODB_URI = process.env.MONGODB_URI;
 
 const Author = require('./models/author')
 const Book = require('./models/book');
+const { GraphQLError } = require("graphql");
+
 
 console.log("connecting to", MONGODB_URI);
 
@@ -93,11 +95,18 @@ const resolvers = {
       let author = await Author.findOne({ name: args.author });
       if (!author) {
         author = new Author({ name: args.author, born: null })
-        const authorValidationErrors = author.validateSync();
-        if (authorValidationErrors) {
-          throw new Error("Author validation failed");
+        try {
+          await author.save()
         }
-        await author.save()
+        catch(error) {
+          throw new GraphQLError("Saving author failed", {
+            extensions: {
+              code: "BAD_USER_INPUT",
+              invalidArgs: args.name,
+              error,
+            },
+          });
+        }
       }
       const book = new Book({
         author,
@@ -105,11 +114,17 @@ const resolvers = {
         published: args.published,
         genres: args.genres,
       });
-      const bookValidationErrors = book.validateSync();
-      if (bookValidationErrors) {
-        throw new Error("book validation failed");
+      try {
+        await book.save();
+      } catch (error) {
+        throw new GraphQLError("Saving book failed", {
+          extensions: {
+            code: "BAD_USER_INPUT",
+            invalidArgs: args.name,
+            error,
+          },
+        });
       }
-      await book.save();
       return book
     },
     editAuthor: async (root, args) => {
