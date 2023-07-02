@@ -1,7 +1,23 @@
 const { ApolloServer } = require("@apollo/server");
+require("dotenv").config();
 const { startStandaloneServer } = require("@apollo/server/standalone");
 
+const mongoose = require("mongoose");
+mongoose.set("strictQuery", false);
+
 const { v1: uuid } = require("uuid");
+const MONGODB_URI = process.env.MONGODB_URI;
+
+console.log("connecting to", MONGODB_URI);
+
+mongoose
+  .connect(MONGODB_URI)
+  .then(() => {
+    console.log("connected to MongoDB");
+  })
+  .catch((error) => {
+    console.log("error connection to MongoDB:", error.message);
+  });
 
 let authors = [
   {
@@ -90,7 +106,7 @@ const typeDefs = `
   type Book {
     title: String!
     published: Int!
-    author: String!
+    author: Author!
     genres: [String!]!
     id: ID!
   }
