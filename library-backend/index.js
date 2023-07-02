@@ -190,15 +190,30 @@ const resolvers = {
       await book.save();
       return book
     },
-    editAuthor: (root, args) => {
+    editAuthor: async (root, args) => {
       const { name, setBornTo } = args
-      const foundAuthor = authors.find(author => author.name === name)
-      if (foundAuthor) {
-        const updatedAuthor = { ...foundAuthor, born: setBornTo }
-        authors = authors.map(author => author.name === name? updatedAuthor : author)
-        return updatedAuthor
+      const filter = { name: name };
+      const author = await Author.findOne(filter)
+      try {
+        await Author.updateOne(
+          filter,
+          {
+            $set: {
+              ...author.document,
+              born: setBornTo,
+            },
+          },
+          {}
+        );
+      } catch (e) {
+        throw new UserInputError(e.message, {
+          invalidArgs: args,
+        });
       }
-      return null
+      const updated = await Author.findOne(filter);
+      const books = await Book.find({}).populate("author");
+      updated.bookCount = books.filter((book) => book.author.name === updated.name).length
+      return updated
     }
   }
 };
