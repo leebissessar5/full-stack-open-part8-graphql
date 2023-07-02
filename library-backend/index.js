@@ -8,6 +8,10 @@ mongoose.set("strictQuery", false);
 const { v1: uuid } = require("uuid");
 const MONGODB_URI = process.env.MONGODB_URI;
 
+const Author = require('./models/author')
+const Book = require('./models/book');
+const book = require("./models/book");
+
 console.log("connecting to", MONGODB_URI);
 
 mongoose
@@ -113,7 +117,7 @@ const typeDefs = `
 
   type Author {
     name: String!
-    bookCount: Int!
+    bookCount: Int
     born: Int
     id: ID!
   }
@@ -131,41 +135,44 @@ const typeDefs = `
       published: Int!
       author: String!
       genres: [String!]!
-    ): Book
+    ): Book!
     editAuthor(name: String!, setBornTo: Int!): Author
   }
 `;
 
 const resolvers = {
   Query: {
-    allAuthors: () => authors.map(author => ({
-        name: author.name,
-        bookCount: books.filter(book => book.author === author.name).length,
-        born: author.born,
-        id: author.id
-      }
-    )),
+    // allAuthors: () => authors.map(author => ({
+    //     name: author.name,
+    //     bookCount: books.filter(book => book.author === author.name).length,
+    //     born: author.born,
+    //     id: author.id
+    //   }
+    // )),
+    allAuthors: async () => await Author.find({}),
     allBooks: (root, args) => {
-      const filteredByAuthor = args.author? books.filter(book => book.author === args.author) : books
-      return args.genre? filteredByAuthor.filter(book => book.genres.includes(args.genre)) : filteredByAuthor
+      // const filteredByAuthor = args.author? books.filter(book => book.author === args.author) : books
+      // return args.genre? filteredByAuthor.filter(book => book.genres.includes(args.genre)) : filteredByAuthor
+      return Book.find({})
     },
-    authorCount: () => authors.length,
-    bookCount: () => books.length
+    authorCount: () => Author.collection.countDocuments(),
+    bookCount: () => Book.collection.countDocuments()
   },
 
   Mutation: {
-    addBook: (root, args) => {
-      const book = { ...args, id: uuid() }
-      books = books.concat(book)
-
-      const foundAuthor = authors.find(author => author.name === book.author)
-      if (!foundAuthor) {
-        const newAuthor = { 
-          name: book.author,
-          id: uuid()
-        }
-        authors = authors.concat(newAuthor)
+    addBook: async (root, args) => {
+      let author = await Author.findOne({ name: args.author });
+      if (!author) {
+        author = new Author({ name: args.author, born: null })
+        await author.save()
       }
+      const book = new Book({
+        author,
+        title: args.title,
+        published: args.published,
+        genres: args.genres,
+      });
+      await book.save();
       return book
     },
     editAuthor: (root, args) => {
