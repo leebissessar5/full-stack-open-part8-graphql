@@ -150,10 +150,23 @@ const resolvers = {
     //   }
     // )),
     allAuthors: async () => await Author.find({}),
-    allBooks: (root, args) => {
-      // const filteredByAuthor = args.author? books.filter(book => book.author === args.author) : books
-      // return args.genre? filteredByAuthor.filter(book => book.genres.includes(args.genre)) : filteredByAuthor
-      return Book.find({})
+    allBooks: async (root, args) => {
+      let query = {};
+
+      if (args.author) {
+        const author = await Author.findOne({ name: args.author });
+        if (!author) {
+          return []
+        }
+        query.author = author._id;
+      }
+
+      if (args.genre) {
+        query.genres = { $in: [args.genre] };
+      }
+
+      const books = await Book.find(query).populate('author');
+      return books;
     },
     authorCount: () => Author.collection.countDocuments(),
     bookCount: () => Book.collection.countDocuments()
@@ -172,6 +185,7 @@ const resolvers = {
         published: args.published,
         genres: args.genres,
       });
+      console.log(book)
       await book.save();
       return book
     },
