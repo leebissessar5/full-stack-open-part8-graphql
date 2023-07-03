@@ -97,6 +97,5 @@ export const BOOK_ADDED = gql`
       published
       genres
     }
-    }
   }
 `;

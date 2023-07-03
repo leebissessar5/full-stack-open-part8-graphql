@@ -6,14 +6,20 @@ import LoginForm from './components/LoginForm'
 
 import { useApolloClient } from '@apollo/client'
 import Recommend from './components/Recommend'
-import { GET_USER } from './queries'
-import { useQuery } from '@apollo/client'
+import { BOOK_ADDED, GET_USER } from './queries'
+import { useQuery, useSubscription } from '@apollo/client'
 
 const App = () => {
   const [token, setToken] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
   const [page, setPage] = useState("authors");
   const client = useApolloClient();
+
+  useSubscription(BOOK_ADDED, {
+    onData: ({ data }) => {
+      console.log(data);
+    },
+  });
 
   const notify = (message) => {
     setErrorMessage(message);
