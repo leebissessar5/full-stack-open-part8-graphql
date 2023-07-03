@@ -7,6 +7,7 @@ const Books = (props) => {
   const filterByGenre = useQuery(BOOKS_BY_GENRE);
   const [books, setBooks] = useState([]);
   const [uniqueGenres, setUniqueGenres] = useState([]);
+  const [genre, setGenre] = useState(null)
 
   useEffect(() => {
     if (result.data && !result.loading) {
@@ -33,7 +34,7 @@ const Books = (props) => {
   return (
     <div>
       <h2>books</h2>
-
+      {genre? <div>in genre <b>{genre}</b></div> : <div>All genres</div>}
       <table>
         <tbody>
           <tr>
@@ -52,13 +53,17 @@ const Books = (props) => {
       </table>
       <div>
         {uniqueGenres.map((genre) => (
-          <button key={genre} onClick={() => selectedGenre(genre)}>
+          <button key={genre} onClick={() => {
+            selectedGenre(genre)
+            setGenre(genre)
+            }}>
             {genre}
           </button>
         ))}
         <button onClick={async () => {
           await result.refetch()
           setBooks(result.data.allBooks)
+          setGenre(null)
           }}>all genres</button>
       </div>
     </div>
