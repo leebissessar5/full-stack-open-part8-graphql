@@ -4,7 +4,7 @@ import { CREATE_BOOK, ALL_AUTHORS, ALL_BOOKS } from '../queries';
 
 const NewBook = ({ show, setError }) => {
   const [createBook] = useMutation(CREATE_BOOK, {
-    refetchQueries: [{ query: ALL_AUTHORS }, {query: ALL_BOOKS }],
+    refetchQueries: [{ query: ALL_AUTHORS }, {query: ALL_BOOKS } ],
     onError: (error) => {
       const messages = error.graphQLErrors[0].message;
       setError(messages)
