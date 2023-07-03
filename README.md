@@ -8,4 +8,6 @@ This part of the course is about GraphQL, Facebook's alternative to REST for com
 
 Exercises Complete: 26/26 (**100%**)
 
+Time Taken: 9 hrs
+
 [Course Certificate](https://studies.cs.helsinki.fi/stats/api/certificate/fs-graphql/en/e28b42719990911dd37ab85ea1305c65)
