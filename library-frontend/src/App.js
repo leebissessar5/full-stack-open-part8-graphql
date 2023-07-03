@@ -6,7 +6,7 @@ import LoginForm from './components/LoginForm'
 
 import { useApolloClient } from '@apollo/client'
 import Recommend from './components/Recommend'
-import { BOOK_ADDED, GET_USER } from './queries'
+import { ALL_BOOKS, BOOK_ADDED, GET_USER } from './queries'
 import { useQuery, useSubscription } from '@apollo/client'
 
 const App = () => {
@@ -17,7 +17,15 @@ const App = () => {
 
   useSubscription(BOOK_ADDED, {
     onData: ({ data }) => {
-      console.log(data);
+      const addedBook = data.data.bookAdded
+      if (addedBook) {
+        window.alert(`New book ${addedBook.title} by ${addedBook.author.name} added`);
+        client.cache.updateQuery({ query: ALL_BOOKS }, ({ allBooks }) => {
+          return {
+            allBooks: allBooks.concat(addedBook),
+          };
+        });
+      }
     },
   });
 
